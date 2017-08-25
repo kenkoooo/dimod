@@ -1,0 +1,390 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dimod.utilities &mdash; dimod 0.1.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="dimod 0.1.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> dimod
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sampler_template.html">Creating dimod samplers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../samplers/index.html">Included Samplers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../responses.html">Responses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../decorators.html">Decorators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utilities.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">dimod</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>dimod.utilities</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dimod.utilities</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A collection of utility functions useful for Samplers.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ising_energy&#39;</span><span class="p">,</span> <span class="s1">&#39;qubo_energy&#39;</span><span class="p">,</span> <span class="s1">&#39;ising_to_qubo&#39;</span><span class="p">,</span> <span class="s1">&#39;qubo_to_ising&#39;</span><span class="p">]</span>
+
+<span class="n">PY2</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span>
+<span class="k">if</span> <span class="n">PY2</span><span class="p">:</span>
+    <span class="n">iteritems</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">iteritems</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="ising_energy"><a class="viewcode-back" href="../../generated/dimod.utilities.ising_energy.html#dimod.utilities.ising_energy">[docs]</a><span class="k">def</span> <span class="nf">ising_energy</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">J</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculate the Ising energy of the given sample.</span>
+
+<span class="sd">    H(s) = sum_i h_i * s_i + sum_(i, j) J_(i,j) * s_i * s_j</span>
+
+<span class="sd">    https://en.wikipedia.org/wiki/Ising_model</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        h: The linear biases in a dict of the form {var: bias, ...}.</span>
+<span class="sd">        J: The quadratic biases in a dict of the form</span>
+<span class="sd">        {(var0, var1): bias, ...}.</span>
+<span class="sd">        sample: A dict of spins of the form {var: spin, ...} where</span>
+<span class="sd">        each spin is either -1 or 1.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: The induced energy.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        No input checking is performed.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">energy</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># add the contribution from the linear biases</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">h</span><span class="p">:</span>
+        <span class="n">energy</span> <span class="o">+=</span> <span class="n">h</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">*</span> <span class="n">sample</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+
+    <span class="c1"># add the contribution from the quadratic biases</span>
+    <span class="k">for</span> <span class="n">v0</span><span class="p">,</span> <span class="n">v1</span> <span class="ow">in</span> <span class="n">J</span><span class="p">:</span>
+        <span class="n">energy</span> <span class="o">+=</span> <span class="n">J</span><span class="p">[(</span><span class="n">v0</span><span class="p">,</span> <span class="n">v1</span><span class="p">)]</span> <span class="o">*</span> <span class="n">sample</span><span class="p">[</span><span class="n">v0</span><span class="p">]</span> <span class="o">*</span> <span class="n">sample</span><span class="p">[</span><span class="n">v1</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">energy</span></div>
+
+
+<div class="viewcode-block" id="qubo_energy"><a class="viewcode-back" href="../../generated/dimod.utilities.qubo_energy.html#dimod.utilities.qubo_energy">[docs]</a><span class="k">def</span> <span class="nf">qubo_energy</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculate the quadratic polynomial value of the given sample</span>
+<span class="sd">    to a quadratic unconstrained binary optimization (QUBO) problem.</span>
+
+<span class="sd">    E(x) = sum_(i, j) Q_(i, j) * x_i * x_j</span>
+
+<span class="sd">    https://en.wikipedia.org/wiki/Quadratic_unconstrained_binary_optimization</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        Q: A dict of the QUBO coefficients of the form</span>
+<span class="sd">        {(var0, var1): coeff, ...}</span>
+<span class="sd">        sample: A dict of binary variables of the form</span>
+<span class="sd">        {var: bin, ...} where each bin is either 0 or 1.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: The induced energy.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        No input checking is performed.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">energy</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">v0</span><span class="p">,</span> <span class="n">v1</span> <span class="ow">in</span> <span class="n">Q</span><span class="p">:</span>
+        <span class="n">energy</span> <span class="o">+=</span> <span class="n">sample</span><span class="p">[</span><span class="n">v0</span><span class="p">]</span> <span class="o">*</span> <span class="n">sample</span><span class="p">[</span><span class="n">v1</span><span class="p">]</span> <span class="o">*</span> <span class="n">Q</span><span class="p">[(</span><span class="n">v0</span><span class="p">,</span> <span class="n">v1</span><span class="p">)]</span>
+
+    <span class="k">return</span> <span class="n">energy</span></div>
+
+
+<div class="viewcode-block" id="ising_to_qubo"><a class="viewcode-back" href="../../generated/dimod.utilities.ising_to_qubo.html#dimod.utilities.ising_to_qubo">[docs]</a><span class="k">def</span> <span class="nf">ising_to_qubo</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">J</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Converts an Ising problem to a QUBO problem.</span>
+
+<span class="sd">    Map an Ising model defined over -1/+1 variables to a binary quadratic</span>
+<span class="sd">    program x&#39; * Q * x defined over 0/1 variables. We return the Q defining</span>
+<span class="sd">    the BQP model as well as the offset in energy between the two problem</span>
+<span class="sd">    formulations, i.e. s&#39; * J * s + h&#39; * s = offset + x&#39; * Q * x. The linear term</span>
+<span class="sd">    of the BQP is contained along the diagonal of Q.</span>
+
+<span class="sd">    See qubo_to_ising(Q) for the inverse function.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        h (dict): A dict of the linear coefficients of the Ising problem.</span>
+<span class="sd">        J (dict): A dict of the quadratic coefficients of the Ising problem.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (dict, float): A dict of the QUBO coefficients. The energy offset.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">q</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># the linear biases are the easiest</span>
+    <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">bias</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="n">h</span><span class="p">):</span>
+        <span class="n">q</span><span class="p">[(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">bias</span>
+        <span class="n">offset</span> <span class="o">-=</span> <span class="n">bias</span>
+
+    <span class="c1"># next the quadratic biases</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="n">bias</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="n">J</span><span class="p">):</span>
+        <span class="n">q</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)]</span> <span class="o">+=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">bias</span>
+        <span class="n">q</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="p">)]</span> <span class="o">-=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">bias</span>
+        <span class="n">q</span><span class="p">[(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)]</span> <span class="o">-=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">bias</span>
+        <span class="n">offset</span> <span class="o">+=</span> <span class="n">bias</span>
+
+    <span class="c1"># finally convert q to a dict, rather than default dict</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="k">if</span> <span class="n">v</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">q</span><span class="p">,</span> <span class="n">offset</span></div>
+
+
+<div class="viewcode-block" id="qubo_to_ising"><a class="viewcode-back" href="../../generated/dimod.utilities.qubo_to_ising.html#dimod.utilities.qubo_to_ising">[docs]</a><span class="k">def</span> <span class="nf">qubo_to_ising</span><span class="p">(</span><span class="n">Q</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Converts a QUBO problem to an Ising problem.</span>
+
+<span class="sd">    Map a binary quadratic program x&#39; * Q * x defined over 0/1 variables to</span>
+<span class="sd">    an Ising model defined over -1/+1 variables. We return the h and J</span>
+<span class="sd">    defining the Ising model as well as the offset in energy between the</span>
+<span class="sd">    two problem formulations, i.e. x&#39; * Q * x = offset + s&#39; * J * s + h&#39; * s. The</span>
+<span class="sd">    linear term of the QUBO is contained along the diagonal of Q.</span>
+
+<span class="sd">    See ising_to_qubo(h, J) for the inverse function.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        Q: A dict of the QUBO coefficients.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (dict, dict, float):</span>
+<span class="sd">        A dict of the linear coefficients of the Ising problem.</span>
+<span class="sd">        A dict of the quadratic coefficients of the Ising problem.</span>
+<span class="sd">        The energy offset.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">),</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="n">Q</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">k</span><span class="p">:</span>
+            <span class="c1"># linear biases</span>
+            <span class="n">h</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">e</span>
+            <span class="n">offset</span> <span class="o">+=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">e</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># quadratic biases</span>
+            <span class="n">j</span><span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">)]</span> <span class="o">=</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="n">e</span>
+            <span class="n">h</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="n">e</span>
+            <span class="n">h</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="n">e</span>
+            <span class="n">offset</span> <span class="o">+=</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="n">e</span>
+
+    <span class="c1"># remove the 0 entries of J</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="k">if</span> <span class="n">v</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">h</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">offset</span></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, D-Wave Systems Inc.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
