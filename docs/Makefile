@@ -18,12 +18,14 @@ help:
 gh-pages:
 	cd .. && \
 	    git checkout gh-pages && \
+	    rm -rf build _sources _static _modules generated samplers && \
 	    git checkout master $(GH_PAGES_SOURCES) && \
 		git reset HEAD
 	cd ../docs && \
 		make html && \
-		mv -fv build/html/* ../
+		mv --force build/html/* ../
 	cd .. && \
+		touch .nojekyll && \
 		git add -A && \
 		git commit -m "Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`" && \
 		git push origin gh-pages && \
